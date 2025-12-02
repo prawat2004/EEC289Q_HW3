@@ -21,18 +21,28 @@ def readData(file):
         distances[int(parts[1]) - 1,int(parts[0]) - 1] = distance
     
     return nodes, distances
-def writeSol(path):
+def writeSol(path, mode):
     #just writes the solutions as specified in the hw
     i = 0
     length = len(path)
-    with open("920784024_solution.txt", 'w') as file:
-        for node in path:
-            if i<length-1:
-                file.write(f"{node + 1}, ")
-            else:
-                file.write(f"{node + 1}")
-                file.write("\n")
-            i = i+1
+    if mode == 1:
+        with open("920784024_solution.txt", 'w') as file:
+            for node in path:
+                if i<length-1:
+                    file.write(f"{node + 1}, ")
+                else:
+                    file.write(f"{node + 1}")
+                    file.write("\n")
+                i = i+1
+    else:
+        with open("920784024_solution.txt", 'a') as file:
+            for node in path:
+                if i<length-1:
+                    file.write(f"{node + 1}, ")
+                else:
+                    file.write(f"{node + 1}")
+                    file.write("\n")
+                i = i+1
 
 def nearestNeighbor(distance, nodes):
     #literally just a generic algorithm for a typical cycle
@@ -98,7 +108,7 @@ def two_opt(currPath, distances, start, max_time):
                     break
     return best, currBestCost
 
-def solve(distances, nodes):
+def solve(distances, nodes, mode):
     start = time.time()
 
     #heuristic, get a random path using nearest neighbor stuff
@@ -151,14 +161,14 @@ def solve(distances, nodes):
     print(f"Best cost found: {currLen}")
     print(f"Amount of Cycles: {numIters}")
     print(f"Time Taken: {tot}")
-    writeSol(currPath)
+    writeSol(currPath, mode)
 
 
 print("Starting Euclidean")
 nodes, distances = readData("TSP_1000_euclidianDistance.txt")
-solve(distances, nodes)
+solve(distances, nodes,1)
 print("Starting Random")
 nodes, distances = readData("TSP_1000_randomDistance.txt")
-solve(distances, nodes)
+solve(distances, nodes,0)
 
 
