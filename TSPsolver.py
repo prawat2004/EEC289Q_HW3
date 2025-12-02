@@ -96,5 +96,64 @@ def two_opt(currPath, distances, start, max_time):
                 if checkOpt:
                     break
     return best, currBestCost
-        
+
+def solve(distances, nodes, file):
+    start = time.time()
+
+    #heuristic, get a random path using nearest neighbor stuff
+    currPath = nearestNeighbor(distances, nodes)
+    currLen = calcPathCost(distances, nodes)
+
+    iterPath = currPath
+    iterLen = currLen
+    #temp annealing stuff, start at 250, end at something small
+    tempStart = 250
+    tempEnd = 0.01
+    #allocate some time specifically for annealing ONLY, 50 seconds
+    annealTime = 50.0
+
+    numIters = 0
+    while True:
+        numIters = numIters +1
+
+        if time.time()-start >=annealTime:
+            break
+
+        newTemp = tempStart * pow((tempEnd/tempStart),(time.time()-start)/annealTime)
+        #do the two opt, select two random numbers, ST i<j
+        i = random.randint(1,nodes-1)
+        j = random.randint(1,nodes-1)
+        i, j = min(i,j), max(i,j)
+        #exact same as prev 2 op fxn
+        bufPrev = iterPath[i-1]
+        bufCur = iterPath[i+1]
+        checkChange = iterPath[j]
+        checkAfterChange = iterPath[(j+1)%len(iterPath)]
+
+        #two op distance
+        diff = distances[bufPrev, checkChange]+ distances[bufCur,checkAfterChange]-distances[bufPrev,bufCur]-distances[checkChange,checkAfterChange]
+        #accept better path if we find it
+        if diff<0:
+            reverse(iterPath, i, j)
+            iterLen = iterLen + diff
+            #iter path will randomly take worse paths so we need to keep checking this
+            if iterLen<currLen:
+                currLen = iterLen
+                currPath = iterPath
+
+        else:
+            #randomly accept a path of increasing cost (the point of annealing)
+            if random.random()<math.exp(-diff/(newTemp)):
+                reverse(iterPath,i,j)
+                iterLen = iterLen+diff
+    tot = time.time()-start
+    print("Best cost found: {currLen}\n")
+    print("Amount of Cycles: {numIters}")
+    print("Time Taken: {tot}")
+    writeSol(currPath)
+    return currPath, currLen
+
+
+
+
 
