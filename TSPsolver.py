@@ -97,7 +97,7 @@ def two_opt(currPath, distances, start, max_time):
                     break
     return best, currBestCost
 
-def solve(distances, nodes, file):
+def solve(distances, nodes):
     start = time.time()
 
     #heuristic, get a random path using nearest neighbor stuff
@@ -151,9 +151,13 @@ def solve(distances, nodes, file):
     print("Amount of Cycles: {numIters}")
     print("Time Taken: {tot}")
     writeSol(currPath)
-    return currPath, currLen
 
 
-
+print("Starting Euclidean\n")
+nodes, distances = readData("TSP_1000_euclideanDistance.txt")
+solve(distances, nodes)
+print("Starting Random")
+nodes, distances = readData("TSP_1000_randomDistance.txt")
+solve(distances, nodes)
 
 
