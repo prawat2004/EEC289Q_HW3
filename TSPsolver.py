@@ -18,7 +18,7 @@ def readData(file):
         parts = stuff.split()
         distance = float(parts[2])
         distances[int(parts[0]) - 1, int(parts[1]) - 1] = distance
-        distances[int(parts[0]) - 1, int(parts[1]) - 1] = distance
+        distances[int(parts[1]) - 1,int(parts[0]) - 1] = distance
     
     return nodes, distances
 def writeSol(path):
@@ -37,7 +37,8 @@ def writeSol(path):
 def nearestNeighbor(distance, nodes):
     #literally just a generic algorithm for a typical cycle
     start = nodes-1
-    toVisit = set(range(nodes-1))
+    toVisit = set(range(nodes))
+    toVisit.remove(start)
     
     path = [start]
 
@@ -52,7 +53,7 @@ def calcPathCost(distances, path, nodes):
     #literally just sums the distances
     length = 0
     for i in range(nodes):
-        length = length + distances(path[i],path[i+1])
+        length = length + distances[path[i], path[(i + 1) % nodes]]
     return length
 
 def reverse(path,start, end):
@@ -61,8 +62,8 @@ def reverse(path,start, end):
         x = path[start]
         path[start] = path[end]
         path[end] = x
-        left = left + 1
-        right = right+1
+        start = start + 1
+        end = end-1
 
 def two_opt(currPath, distances, start, max_time):
     best = list(currPath)
@@ -80,7 +81,7 @@ def two_opt(currPath, distances, start, max_time):
             #iterate for ith and remaining parts of the cycle and keep shifting for optimality
             for j in range(i+1, len()):
                 bufPrev = best[i-1]
-                bufCur = best[i+1]
+                bufCur = best[i]
 
                 checkChange = best[j]
                 checkAfterChange = best[(j+1)%len(currPath)]
@@ -102,9 +103,9 @@ def solve(distances, nodes):
 
     #heuristic, get a random path using nearest neighbor stuff
     currPath = nearestNeighbor(distances, nodes)
-    currLen = calcPathCost(distances, nodes)
+    currLen = calcPathCost(distances,currPath, nodes)
 
-    iterPath = currPath
+    iterPath = list(currPath)
     iterLen = currLen
     #temp annealing stuff, start at 250, end at something small
     tempStart = 250
@@ -126,7 +127,7 @@ def solve(distances, nodes):
         i, j = min(i,j), max(i,j)
         #exact same as prev 2 op fxn
         bufPrev = iterPath[i-1]
-        bufCur = iterPath[i+1]
+        bufCur = iterPath[i]
         checkChange = iterPath[j]
         checkAfterChange = iterPath[(j+1)%len(iterPath)]
 
@@ -139,7 +140,7 @@ def solve(distances, nodes):
             #iter path will randomly take worse paths so we need to keep checking this
             if iterLen<currLen:
                 currLen = iterLen
-                currPath = iterPath
+                currPath = list(iterPath)
 
         else:
             #randomly accept a path of increasing cost (the point of annealing)
@@ -147,14 +148,14 @@ def solve(distances, nodes):
                 reverse(iterPath,i,j)
                 iterLen = iterLen+diff
     tot = time.time()-start
-    print("Best cost found: {currLen}\n")
-    print("Amount of Cycles: {numIters}")
-    print("Time Taken: {tot}")
+    print(f"Best cost found: {currLen}")
+    print(f"Amount of Cycles: {numIters}")
+    print(f"Time Taken: {tot}")
     writeSol(currPath)
 
 
-print("Starting Euclidean\n")
-nodes, distances = readData("TSP_1000_euclideanDistance.txt")
+print("Starting Euclidean")
+nodes, distances = readData("TSP_1000_euclidianDistance.txt")
 solve(distances, nodes)
 print("Starting Random")
 nodes, distances = readData("TSP_1000_randomDistance.txt")
