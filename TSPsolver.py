@@ -5,7 +5,9 @@ import math
 import sys
 import os
 limit = 55.0  
-
+#i tried using a simulated annealling similar to the one found here
+#https://www.geeksforgeeks.org/artificial-intelligence/hill-climbing-and-simulated-annealing-for-the-traveling-salesman-problem/
+#
 def readData(file):
     #data parsing using 0 index unlike the actual graphs
     with open(file, 'r') as f:
@@ -26,7 +28,7 @@ def writeSol(path, mode):
     i = 0
     length = len(path)
     if mode == 1:
-        with open("920784024_solution.txt", 'w') as file:
+        with open("solution_920784024.txt", 'w') as file:
             for node in path:
                 if i<length-1:
                     file.write(f"{node + 1}, ")
@@ -35,7 +37,7 @@ def writeSol(path, mode):
                     file.write("\n")
                 i = i+1
     else:
-        with open("920784024_solution.txt", 'a') as file:
+        with open("solution_920784024.txt", 'a') as file:
             for node in path:
                 if i<length-1:
                     file.write(f"{node + 1}, ")
